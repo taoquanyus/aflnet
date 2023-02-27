@@ -150,11 +150,11 @@ static s32 forksrv_pid,               /* PID of the fork server           */
            child_pid = -1,            /* PID of the fuzzed program        */
            out_dir_fd = -1;           /* FD of the lock file              */
 
-EXP_ST u8* trace_bits;                /* SHM with instrumentation bitmap  */
+EXP_ST u8* trace_bits;                /* SHM with instrumentation bitmap  记录当前tuple信息*/
 
-EXP_ST u8  virgin_bits[MAP_SIZE],     /* Regions yet untouched by fuzzing */
-           virgin_tmout[MAP_SIZE],    /* Bits we haven't seen in tmouts   */
-           virgin_crash[MAP_SIZE];    /* Bits we haven't seen in crashes  */
+EXP_ST u8  virgin_bits[MAP_SIZE],     /* Regions yet untouched by fuzzing 用来记录总的tuple信息*/
+           virgin_tmout[MAP_SIZE],    /* Bits we haven't seen in tmouts   记录fuzz过程中出现的所有目标程序的timeout时的tuple信息*/
+           virgin_crash[MAP_SIZE];    /* Bits we haven't seen in crashes  记录fuzz过程中出现的crash时的tuple信息*/
 
 static u8  var_bytes[MAP_SIZE];       /* Bytes that appear to be variable */
 
@@ -240,7 +240,7 @@ static s32 cpu_aff = -1;       	      /* Selected CPU core                */
 
 static FILE* plot_file;               /* Gnuplot output file              */
 
-struct queue_entry {
+struct queue_entry { //测试用例队列
 
   u8* fname;                          /* File name for the test case      */
   u32 len;                            /* Input length                     */
@@ -353,13 +353,13 @@ static inline u8 has_new_bits(u8* virgin_map);
 
 /* AFLNet-specific variables & functions */
 
-u32 server_wait_usecs = 10000;
+u32 server_wait_usecs = 10000;//AFLNET与被测试服务器没有同步机制，通过设置这个延迟时间来防止发包过快导致服务器没有处理完上一个数据包而导致丢包
 u32 poll_wait_msecs = 1;
 u32 socket_timeout_usecs = 1000;
 u8 net_protocol;
 u8* net_ip;
 u32 net_port;
-char *response_buf = NULL;
+char *response_buf = NULL;//作为接收服务器返回响应的缓冲区
 int response_buf_size = 0; //the size of the whole response buffer
 u32 *response_bytes = NULL; //an array keeping accumulated response buffer size
                             //e.g., response_bytes[i] keeps the response buffer size
@@ -5824,7 +5824,7 @@ static u8 could_be_interest(u32 old_val, u32 new_val, u8 blen, u8 check_le) {
    function is a tad too long... returns 0 if fuzzed successfully, 1 if
    skipped or bailed out. */
 
-static u8 fuzz_one(char** argv) {
+static u8 fuzz_one(char** argv) { //变异
 
   s32 len, fd, temp_len, i, j;
   u8  *in_buf = NULL, *out_buf, *orig_in, *ex_tmp, *eff_map = 0;
@@ -8818,20 +8818,38 @@ int main(int argc, char** argv) {
   u64 prev_queued = 0;
   u32 sync_interval_cnt = 0, seek_to;
   u8  *extras_dir = 0;
-  u8  mem_limit_given = 0;
+  u8  mem_limit_given = 0; //是否有内存限制
   u8  exit_1 = !!getenv("AFL_BENCH_JUST_ONE");
-  //char** use_argv;
+  //char** use_argv; //用户输出参数
 
   struct timeval tv;
   struct timezone tz;
-
+  //自定义调试头文件
   SAYF(cCYA "afl-fuzz " cBRI VERSION cRST " by <lcamtuf@google.com>\n");
-
+  //文件路径
   doc_path = access(DOC_PATH, F_OK) ? "docs" : DOC_PATH;
-
+  //时间
   gettimeofday(&tv, &tz);
   srandom(tv.tv_sec ^ tv.tv_usec ^ getpid());
 
+   /* 判断输入参数
+    i:输入文件夹，包含所有的测试用例 testcase
+    o:输出文件夹，用来存储所有的中间结果和最终结果
+    M:设置主（Master）Fuzzer
+    S:设置从属（Slave）Fuzzer
+    f:testcase的内容会作为afl_test的stdin
+    x:设置用户提供的tokens
+    t:设置程序运行超时的时间，单位为ms
+    m:设置分配的内存空间
+    d:
+    B:
+    C:
+    n:
+    T:
+    Q:
+    default: 如果输入错误，提示使用手册（当进行魔改的时候，可以在这个函数 usage(argv[0]); 里进行修改）
+    对afl进行魔改的时候，需要外界输入参数的话，可以从这里先入手，然后倒推到开头，整理出afl实现过程中的参数变化过程。
+*/
   while ((opt = getopt(argc, argv, "+i:o:f:m:t:T:dnCB:S:M:x:QN:D:W:w:e:P:KEq:s:RFc:l:")) > 0)
 
     switch (opt) {
@@ -9123,7 +9141,7 @@ int main(int argc, char** argv) {
 
       default:
 
-        usage(argv[0]);
+        usage(argv[0]);// 显示使用提示
 
     }
 
@@ -9141,14 +9159,14 @@ int main(int argc, char** argv) {
             "afl-fuzz with sudo or by \"$ setcap cap_sys_admin+ep /path/to/afl-fuzz\".", netns_name);
   }
 
-  setup_signal_handlers();
-  check_asan_opts();
+  setup_signal_handlers(); //设置信号句柄
+  check_asan_opts(); //检测asan选项
 
   if (sync_id) fix_up_sync();
-
-  if (!strcmp(in_dir, out_dir))
+    //检查in out文件夹是否相同
+    if (!strcmp(in_dir, out_dir))
     FATAL("Input and output directories can't be the same");
-
+    //设置环境变量
   if (dumb_mode) {
 
     if (crash_mode) FATAL("-C and -n are mutually exclusive");
@@ -9180,40 +9198,40 @@ int main(int argc, char** argv) {
 
   save_cmdline(argc, argv);
 
-  fix_up_banner(argv[optind]);
+  fix_up_banner(argv[optind]); //修剪并且创建一个运行横幅
 
-  check_if_tty();
+  check_if_tty(); //判断是否在tty终端上运行
 
-  get_core_count();
+  get_core_count();//获取cpu逻辑核数
 
 #ifdef HAVE_AFFINITY
-  bind_to_free_cpu();
+  bind_to_free_cpu(); //尝试绑定空闲cpu
 #endif /* HAVE_AFFINITY */
 
-  check_crash_handling();
-  check_cpu_governor();
+  check_crash_handling();// 确保 core dump 不发生
+  check_cpu_governor();// cpu的调度管理
 
-  setup_post();
-  setup_shm();
-  init_count_class16();
+  setup_post(); // 加载后处理器
+  setup_shm(); //创建共享内存 && 各种覆盖状态
+  init_count_class16(); //初始化统计计数桶
 
-  setup_ipsm();
+  setup_ipsm(); //aflnet的核心，设定有限向量机
 
-  setup_dirs_fds();
-  read_testcases();
-  load_auto();
+  setup_dirs_fds(); //设置输出目录和文件描述符
+  read_testcases(); //read测试用例，读取种子
+  load_auto(); //自动加载字典
 
-  pivot_inputs();
+  pivot_inputs(); //在输出目录中为输入测试用例创建硬链接，选择好名称并相应地旋转
 
-  if (extras_dir) load_extras(extras_dir);
+  if (extras_dir) load_extras(extras_dir); //加载用户通过-x指定的字典
 
-  if (!timeout_given) find_timeout();
+  if (!timeout_given) find_timeout(); //超时函数，如果有-t的设置了自己的超时，那么会触发这个函数。
 
-  detect_file_args(argv + optind + 1);
+  detect_file_args(argv + optind + 1); //检查是否有@@，通过文件
 
-  if (!out_file) setup_stdio_file();
+  if (!out_file) setup_stdio_file();  //标准输入流
 
-  check_binary(argv[optind]);
+  check_binary(argv[optind]);// 搜索路径，找到目标二进制文件，检查文件是否存在，是否为shell脚本，同时检查ELF头以及程序是否被插桩。
 
   start_time = get_cur_time();
 
@@ -9222,17 +9240,19 @@ int main(int argc, char** argv) {
   else
     use_argv = argv + optind;
 
-  perform_dry_run(use_argv);
+  perform_dry_run(use_argv);  //校验初始种子，对种子进行处理
 
-  cull_queue();
+  cull_queue(); //更新队列
 
-  show_init_stats();
+  show_init_stats(); //显示ui界面，更新，显示状态
 
-  seek_to = find_start_position();
+  seek_to = find_start_position(); //开始真正的fuzz
 
-  write_stats_file(0, 0, 0);
+  write_stats_file(0, 0, 0); //写到 out/fuzz_stats
   save_auto();
 
+    //在main函数中一共只用了两次goto，都是为了结束afl的fuzz过程；
+    //还用到stop_soon变量，这是个标志变量，表示是否按下Ctrl-c，所以ctrl-c是用来停止afl的
   if (stop_soon) goto stop_fuzzing;
 
   /* Woop woop woop */
@@ -9257,6 +9277,7 @@ int main(int argc, char** argv) {
         target_state_id = choose_target_state(state_selection_algo);
 
         /* Update favorites based on the selected state */
+        //更新队列
         cull_queue();
 
         /* Update number of times a state has been selected for targeted fuzzing */
@@ -9274,6 +9295,7 @@ int main(int argc, char** argv) {
             current_entry     = 0;
             cur_skipped_paths = 0;
             queue_cur         = queue;
+            //现在在进行第几轮的循环
             queue_cycle++;
         }
         while (queue_cur != selected_seed) {
@@ -9322,7 +9344,7 @@ int main(int argc, char** argv) {
           queue_cur = queue_cur->next;
         }
 
-        show_stats();
+        show_stats(); //显示状态
 
         if (not_on_tty) {
           ACTF("Entering queue cycle %llu.", queue_cycle);
@@ -9332,20 +9354,20 @@ int main(int argc, char** argv) {
         /* If we had a full queue cycle with no new finds, try
            recombination strategies next. */
 
-        if (queued_paths == prev_queued) {
+        if (queued_paths == prev_queued) { //队列没有更新的话，没有产生interesting的种子
 
           if (use_splicing) cycles_wo_finds++; else use_splicing = 1;
 
         } else cycles_wo_finds = 0;
 
         prev_queued = queued_paths;
-
+        //并行fuzz
         if (sync_id && queue_cycle == 1 && getenv("AFL_IMPORT_FIRST"))
           sync_fuzzers(use_argv);
 
       }
 
-      skipped_fuzz = fuzz_one(use_argv);
+      skipped_fuzz = fuzz_one(use_argv);//
 
       if (!stop_soon && sync_id && !skipped_fuzz) {
 
@@ -9356,15 +9378,15 @@ int main(int argc, char** argv) {
 
       if (!stop_soon && exit_1) stop_soon = 2;
 
-      if (stop_soon) break;
+      if (stop_soon) break; //如果按下ctrl-c跳出循环
 
-      queue_cur = queue_cur->next;
+      queue_cur = queue_cur->next; //队列继续，进行到下一节点
       current_entry++;
 
-    }
+    } //while部分在这里结束
   }
 
-  if (queue_cur) show_stats();
+  if (queue_cur) show_stats();//显示状态
 
   /* If we stopped programmatically, we kill the forkserver and the current runner.
      If we stopped manually, this is done by the signal handler. */
@@ -9380,7 +9402,7 @@ int main(int argc, char** argv) {
   write_bitmap();
   write_stats_file(0, 0, 0);
   save_auto();
-
+/*利用goto强制跳到结束，作者用了不少goto跳转，比如在变异阶段的skip_bitflip等*/
 stop_fuzzing:
 
   SAYF(CURSOR_SHOW cLRD "\n\n+++ Testing aborted %s +++\n" cRST,
@@ -9395,7 +9417,7 @@ stop_fuzzing:
            "    (For info on resuming, see %s/README.)\n", doc_path);
 
   }
-
+  /* 善后工作*/
   fclose(plot_file);
   destroy_queue();
   destroy_extras();

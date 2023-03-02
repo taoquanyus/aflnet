@@ -266,7 +266,7 @@ struct queue_entry { //测试用例队列
 
   struct queue_entry *next,           /* Next element, if any             */
                      *next_100;       /* 100 elements ahead               */
-
+  // aflnet 新增成员变量
   region_t *regions;                  /* Regions keeping information of message(s) sent to the server under test */
   u32 region_count;                   /* Total number of regions in this seed */
   u32 index;                          /* Index of this queue entry in the whole queue */
@@ -679,6 +679,7 @@ unsigned int choose_target_state(u8 mode) {
 }
 
 /* Select a seed to exercise the target state */
+//这里应该是选取m1
 struct queue_entry *choose_seed(u32 target_state_id, u8 mode)
 {
   khint_t k;
@@ -3383,7 +3384,7 @@ static void show_stats(void);
 /* Calibrate a new test case. This is done when processing the input directory
    to warn about flaky or otherwise problematic test cases early on; and when
    new paths are discovered to detect variable behavior and so on. */
-
+// 校准一个新的测试用例。这是在处理输入目录时完成的，以便在早期就警告有问题的测试用例;当发现新的路径来检测变量行为等等。
 static u8 calibrate_case(char** argv, struct queue_entry* q, u8* use_mem,
                          u32 handicap, u8 from_queue) {
 
@@ -5847,7 +5848,7 @@ static u8 fuzz_one(char** argv) { //变异
 
   //Skip some steps if in state_aware_mode because in this mode
   //the seed is selected based on state-aware algorithms
-  if (state_aware_mode) goto AFLNET_REGIONS_SELECTION;
+  if (state_aware_mode) goto AFLNET_REGIONS_SELECTION;//goto 可以跳出嵌套！！
 
   if (pending_favored) {
 
@@ -5884,7 +5885,7 @@ static u8 fuzz_one(char** argv) { //变异
     fflush(stdout);
   }
 
-AFLNET_REGIONS_SELECTION:;
+AFLNET_REGIONS_SELECTION:;//相当于跳到这里，继续执行，但是无论是不是state_aware_mode都需要继续执行
 
   subseq_tmouts = 0;
 

@@ -8814,6 +8814,17 @@ static int check_ep_capability(cap_value_t cap, const char *filename) {
 /* Main entry point */
 
 int main(int argc, char** argv) {
+  /*
+  debug
+  argv[0] 是程序的名字
+  argv = "afl-fuzz -d -i $AFLNET/tutorials/live555/in-rtsp -o out-live555 -N tcp://127.0.0.1/8554 -x $AFLNET/tutorials/live555/rtsp.dict -P RTSP -D 10000 -q 3 -s 3 -E -K -R ./testOnDemandRTSPServer 8554";
+  $AFLNET = /home/quanyu/Desktop/aflnet
+  $Path = /home/quanyu/Desktop/live555/testProgs/
+  "afl-fuzz -d -i /home/quanyu/Desktop/aflnet/tutorials/live555/in-rtsp -o /home/quanyu/Desktop/live555/testProgs/out-live555 -N tcp://127.0.0.1/8554 -x /home/quanyu/Desktop/aflnet/tutorials/live555/rtsp.dict -P RTSP -D 10000 -q 3 -s 3 -E -K -R /home/quanyu/Desktop/live555/testProgs/testOnDemandRTSPServer 8554";
+
+
+  */
+//  int debug_mode = 1
 
   s32 opt;
   u64 prev_queued = 0;

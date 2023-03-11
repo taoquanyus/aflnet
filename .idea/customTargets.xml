@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CLionExternalBuildManager">
+    <target id="a24d5154-9ed2-4c8c-a0bd-547024a9d881" name="wt10" defaultType="TOOL">
+      <configuration id="8a1b0352-1622-4d32-baf2-51f1b38112a6" name="wt10">
+        <build type="TOOL">
+          <tool actionId="Tool_External Tools_build_with_make" />
+        </build>
+        <clean type="TOOL">
+          <tool actionId="Tool_External Tools_build_with_clean" />
+        </clean>
+      </configuration>
+    </target>
+  </component>
+</project>

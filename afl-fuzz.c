@@ -236,7 +236,7 @@ static s32 cpu_core_count;            /* CPU core count                   */
 
 #ifdef HAVE_AFFINITY
 
-static s32 cpu_aff = -1;       	      /* Selected CPU core                */
+static s32 cpu_aff = -1;              /* Selected CPU core                */
 
 #endif /* HAVE_AFFINITY */
 
@@ -353,10 +353,11 @@ static u8 run_target(char **argv, u32 timeout);
 
 static inline u32
 UR(u32
-limit);
+   limit);
+
 static inline u8
 has_new_bits(u8
-* virgin_map);
+             *virgin_map);
 
 /* AFLNet-specific variables & functions */
 
@@ -480,7 +481,7 @@ void expand_was_fuzzed_map(u32 new_states, u32 new_qentries) {
 /* Get unique state count, given a state sequence */
 u32 get_unique_state_count(unsigned int *state_sequence, unsigned int state_count) {
     //A hash set is used so that no state is counted twice
-    khash_t(hs32) * khs_state_ids;
+    khash_t(hs32) *khs_state_ids;
     khs_state_ids = kh_init(hs32);
 
     unsigned int discard, state_id, i;
@@ -504,7 +505,7 @@ u32 get_unique_state_count(unsigned int *state_sequence, unsigned int state_coun
 /* Check if a state sequence is interesting (e.g., new state is discovered). Loop is taken into account */
 u8 is_state_sequence_interesting(unsigned int *state_sequence, unsigned int state_count) {
     //limit the loop count to only 1
-    u32 * trimmed_state_sequence = NULL;
+    u32 *trimmed_state_sequence = NULL;
     u32 i, count = 0;
     for (i = 0; i < state_count; i++) {
         if ((i >= 2) && (state_sequence[i] == state_sequence[i - 1]) &&
@@ -546,7 +547,7 @@ void update_region_annotations(struct queue_entry *q) {
 
 /* Choose a region data for region-level mutations */
 u8 *choose_source_region(u32 *out_len) {
-    u8 * out = NULL;
+    u8 *out = NULL;
     *out_len = 0;
     struct queue_entry *q = queue;
 
@@ -582,7 +583,7 @@ void update_fuzzs() {
     unsigned int *state_sequence = (*extract_response_codes)(response_buf, response_buf_size, &state_count);
 
     //A hash set is used so that the #paths is not updated more than once for one specific state
-    khash_t(hs32) * khs_state_ids;
+    khash_t(hs32) *khs_state_ids;
     khint_t k;
     khs_state_ids = kh_init(hs32);
 
@@ -618,7 +619,7 @@ u32 update_scores_and_select_next_state(u8 mode) {
 
     if (state_ids_count == 0) return 0;
 
-    u32 * state_scores = NULL;
+    u32 *state_scores = NULL;
     state_scores = (u32 *) ck_alloc(state_ids_count * sizeof(u32));
     if (!state_scores) PFATAL("Cannot allocate memory for state_scores");
 
@@ -788,9 +789,9 @@ void update_state_aware_variables(struct queue_entry *q, u8 dry_run) {
 
     if (is_state_sequence_interesting(state_sequence, state_count)) {
         //Save the current kl_messages to a file which can be used to replay the newly discovered paths on the ipsm
-        u8 * temp_str = state_sequence_to_string(state_sequence, state_count);
-        u8 * fname = alloc_printf("%s/replayable-new-ipsm-paths/id:%s:%s", out_dir, temp_str,
-                                  dry_run ? basename(q->fname) : "new");
+        u8 *temp_str = state_sequence_to_string(state_sequence, state_count);
+        u8 *fname = alloc_printf("%s/replayable-new-ipsm-paths/id:%s:%s", out_dir, temp_str,
+                                 dry_run ? basename(q->fname) : "new");
         save_kl_messages_to_file(kl_messages, fname, 1, messages_sent);
         ck_free(temp_str);
         ck_free(fname);
@@ -885,7 +886,7 @@ void update_state_aware_variables(struct queue_entry *q, u8 dry_run) {
 
         //Update the dot file
         s32 fd;
-        u8 * tmp;
+        u8 *tmp;
         tmp = alloc_printf("%s/ipsm.dot", out_dir);
         fd = open(tmp, O_WRONLY | O_CREAT, 0600);
         if (fd < 0) {
@@ -969,7 +970,7 @@ void update_state_aware_variables(struct queue_entry *q, u8 dry_run) {
     //Update the number of paths which have traversed a specific state
     //It can be used for calculating fuzzing energy
     //A hash set is used so that the #paths is not updated more than once for one specific state
-    khash_t(hs32) * khs_state_ids;
+    khash_t(hs32) *khs_state_ids;
     khs_state_ids = kh_init(hs32);
 
     for (i = 0; i < state_count; i++) {
@@ -1079,7 +1080,7 @@ int send_over_network() {
     if (net_recv(sockfd, timeout, poll_wait_msecs, &response_buf, &response_buf_size)) goto HANDLE_RESPONSES;
 
     //write the request messages
-    kliter_t(lms) * it;
+    kliter_t(lms) *it;
     messages_sent = 0;
 
     for (it = kl_begin(kl_messages); it != kl_end(kl_messages); it = kl_next(it)) {
@@ -1172,25 +1173,25 @@ static u64 get_cur_time_us(void) {
 
 static inline u32
 UR(u32
-limit) {
+   limit) {
 
-if (unlikely(!rand_cnt--)) {
+    if (unlikely(!rand_cnt--)) {
 
-u32 seed[2];
+        u32 seed[2];
 
-ck_read(dev_urandom_fd, &seed, sizeof(seed), "/dev/urandom");
+        ck_read(dev_urandom_fd, &seed, sizeof(seed), "/dev/urandom");
 
-srandom(seed[0]);
-rand_cnt = (RESEED_RNG / 2) + (seed[1] % RESEED_RNG);
+        srandom(seed[0]);
+        rand_cnt = (RESEED_RNG / 2) + (seed[1] % RESEED_RNG);
 
-}
+    }
 
-return
+    return
 
-random()
+            random()
 
-%
-limit;
+            %
+            limit;
 
 }
 
@@ -1215,115 +1216,115 @@ static void shuffle_ptrs(void **ptrs, u32 cnt) {
 
 #ifdef HAVE_AFFINITY
 
-                                                                                                                        /* Build a list of processes bound to specific cores. Returns -1 if nothing
-   can be found. Assumes an upper bound of 4k CPUs. */
+/* Build a list of processes bound to specific cores. Returns -1 if nothing
+can be found. Assumes an upper bound of 4k CPUs. */
 
 static void bind_to_free_cpu(void) {
 
-  DIR* d;
-  struct dirent* de;
-  cpu_set_t c;
+    DIR *d;
+    struct dirent *de;
+    cpu_set_t c;
 
-  u8 cpu_used[4096] = { 0 };
-  u32 i;
+    u8 cpu_used[4096] = {0};
+    u32 i;
 
-  if (cpu_core_count < 2) return;
+    if (cpu_core_count < 2) return;
 
-  if (getenv("AFL_NO_AFFINITY")) {
+    if (getenv("AFL_NO_AFFINITY")) {
 
-    WARNF("Not binding to a CPU core (AFL_NO_AFFINITY set).");
-    return;
-
-  }
-
-  d = opendir("/proc");
-
-  if (!d) {
-
-    WARNF("Unable to access /proc - can't scan for free CPU cores.");
-    return;
-
-  }
-
-  ACTF("Checking CPU core loadout...");
-
-  /* Introduce some jitter, in case multiple AFL tasks are doing the same
-     thing at the same time... */
-
-  usleep(R(1000) * 250);
-
-  /* Scan all /proc/<pid>/status entries, checking for Cpus_allowed_list.
-     Flag all processes bound to a specific CPU using cpu_used[]. This will
-     fail for some exotic binding setups, but is likely good enough in almost
-     all real-world use cases. */
-
-  while ((de = readdir(d))) {
-
-    u8* fn;
-    FILE* f;
-    u8 tmp[MAX_LINE];
-    u8 has_vmsize = 0;
-
-    if (!isdigit(de->d_name[0])) continue;
-
-    fn = alloc_printf("/proc/%s/status", de->d_name);
-
-    if (!(f = fopen(fn, "r"))) {
-      ck_free(fn);
-      continue;
-    }
-
-    while (fgets(tmp, MAX_LINE, f)) {
-
-      u32 hval;
-
-      /* Processes without VmSize are probably kernel tasks. */
-
-      if (!strncmp(tmp, "VmSize:\t", 8)) has_vmsize = 1;
-
-      if (!strncmp(tmp, "Cpus_allowed_list:\t", 19) &&
-          !strchr(tmp, '-') && !strchr(tmp, ',') &&
-          sscanf(tmp + 19, "%u", &hval) == 1 && hval < sizeof(cpu_used) &&
-          has_vmsize) {
-
-        cpu_used[hval] = 1;
-        break;
-
-      }
+        WARNF("Not binding to a CPU core (AFL_NO_AFFINITY set).");
+        return;
 
     }
 
-    ck_free(fn);
-    fclose(f);
+    d = opendir("/proc");
 
-  }
+    if (!d) {
 
-  closedir(d);
+        WARNF("Unable to access /proc - can't scan for free CPU cores.");
+        return;
 
-  for (i = 0; i < cpu_core_count; i++) if (!cpu_used[i]) break;
+    }
 
-  if (i == cpu_core_count) {
+    ACTF("Checking CPU core loadout...");
 
-    SAYF("\n" cLRD "[-] " cRST
-         "Uh-oh, looks like all %u CPU cores on your system are allocated to\n"
-         "    other instances of afl-fuzz (or similar CPU-locked tasks). Starting\n"
-         "    another fuzzer on this machine is probably a bad plan, but if you are\n"
-         "    absolutely sure, you can set AFL_NO_AFFINITY and try again.\n",
-         cpu_core_count);
+    /* Introduce some jitter, in case multiple AFL tasks are doing the same
+       thing at the same time... */
 
-    FATAL("No more free CPU cores");
+    usleep(R(1000) * 250);
 
-  }
+    /* Scan all /proc/<pid>/status entries, checking for Cpus_allowed_list.
+       Flag all processes bound to a specific CPU using cpu_used[]. This will
+       fail for some exotic binding setups, but is likely good enough in almost
+       all real-world use cases. */
 
-  OKF("Found a free CPU core, binding to #%u.", i);
+    while ((de = readdir(d))) {
 
-  cpu_aff = i;
+        u8 *fn;
+        FILE *f;
+        u8 tmp[MAX_LINE];
+        u8 has_vmsize = 0;
 
-  CPU_ZERO(&c);
-  CPU_SET(i, &c);
+        if (!isdigit(de->d_name[0])) continue;
 
-  if (sched_setaffinity(0, sizeof(c), &c))
-    PFATAL("sched_setaffinity failed");
+        fn = alloc_printf("/proc/%s/status", de->d_name);
+
+        if (!(f = fopen(fn, "r"))) {
+            ck_free(fn);
+            continue;
+        }
+
+        while (fgets(tmp, MAX_LINE, f)) {
+
+            u32 hval;
+
+            /* Processes without VmSize are probably kernel tasks. */
+
+            if (!strncmp(tmp, "VmSize:\t", 8)) has_vmsize = 1;
+
+            if (!strncmp(tmp, "Cpus_allowed_list:\t", 19) &&
+                !strchr(tmp, '-') && !strchr(tmp, ',') &&
+                sscanf(tmp + 19, "%u", &hval) == 1 && hval < sizeof(cpu_used) &&
+                has_vmsize) {
+
+                cpu_used[hval] = 1;
+                break;
+
+            }
+
+        }
+
+        ck_free(fn);
+        fclose(f);
+
+    }
+
+    closedir(d);
+
+    for (i = 0; i < cpu_core_count; i++) if (!cpu_used[i]) break;
+
+    if (i == cpu_core_count) {
+
+        SAYF("\n" cLRD "[-] " cRST
+                     "Uh-oh, looks like all %u CPU cores on your system are allocated to\n"
+                     "    other instances of afl-fuzz (or similar CPU-locked tasks). Starting\n"
+                     "    another fuzzer on this machine is probably a bad plan, but if you are\n"
+                     "    absolutely sure, you can set AFL_NO_AFFINITY and try again.\n",
+             cpu_core_count);
+
+        FATAL("No more free CPU cores");
+
+    }
+
+    OKF("Found a free CPU core, binding to #%u.", i);
+
+    cpu_aff = i;
+
+    CPU_ZERO(&c);
+    CPU_SET(i, &c);
+
+    if (sched_setaffinity(0, sizeof(c), &c))
+        PFATAL("sched_setaffinity failed");
 
 }
 
@@ -1521,7 +1522,7 @@ static u8 *DTD(u64 cur_ms, u64 event_ms) {
 
 static void mark_as_det_done(struct queue_entry *q) {
 
-    u8 * fn = strrchr(q->fname, '/');
+    u8 *fn = strrchr(q->fname, '/');
     s32 fd;
 
     fn = alloc_printf("%s/queue/.state/deterministic_done/%s", out_dir, fn + 1);
@@ -1542,7 +1543,7 @@ static void mark_as_det_done(struct queue_entry *q) {
 
 static void mark_as_variable(struct queue_entry *q) {
 
-    u8 * fn = strrchr(q->fname, '/') + 1, *ldest;
+    u8 *fn = strrchr(q->fname, '/') + 1, *ldest;
 
     ldest = alloc_printf("../../%s", fn);
     fn = alloc_printf("%s/queue/.state/variable_behavior/%s", out_dir, fn);
@@ -1568,7 +1569,7 @@ static void mark_as_variable(struct queue_entry *q) {
 
 static void mark_as_redundant(struct queue_entry *q, u8 state) {
 
-    u8 * fn;
+    u8 *fn;
     s32 fd;
 
     if (state == q->fs_redundant) return;
@@ -1660,7 +1661,7 @@ static void add_to_queue(u8 *fname, u32 len, u8 passed_det) {
     }
 
     /* save the regions' information to file for debugging purpose */
-    u8 * fn = alloc_printf("%s/regions/%s", out_dir, basename(fname));
+    u8 *fn = alloc_printf("%s/regions/%s", out_dir, basename(fname));
     save_regions_to_file(q->regions, q->region_count, fn);
     ck_free(fn);
 
@@ -1707,7 +1708,7 @@ EXP_ST void destroy_queue(void) {
 
 EXP_ST void write_bitmap(void) {
 
-    u8 * fname;
+    u8 *fname;
     s32 fd;
 
     if (!bitmap_changed) return;
@@ -1749,79 +1750,78 @@ EXP_ST void read_bitmap(u8 *fname) {
    This function is called after every exec() on a fairly large buffer, so
    it needs to be fast. We do this in 32-bit and 64-bit flavors. */
 
-static inline u8
-has_new_bits(u8
-* virgin_map) {
+static inline u8 has_new_bits(u8 *virgin_map) {
 
 #ifdef WORD_SIZE_64
 
-                                                                                                                        u64* current = (u64*)trace_bits;
-  u64* virgin  = (u64*)virgin_map;
+    u64 *current = (u64 *) trace_bits;
+    u64 *virgin = (u64 *) virgin_map;
 
-  u32  i = (MAP_SIZE >> 3);
+    u32 i = (MAP_SIZE >> 3);
 
 #else
 
-u32 *current = (u32 *) trace_bits;
-u32 *virgin = (u32 *) virgin_map;
+    u32 *current = (u32 *) trace_bits;
+    u32 *virgin = (u32 *) virgin_map;
 
-u32 i = (MAP_SIZE >> 2);
+    u32 i = (MAP_SIZE >> 2);
 
 #endif /* ^WORD_SIZE_64 */
 
-u8 ret = 0;
+    u8 ret = 0;
 
-while (i--) {
+    while (i--) {
 
 /* Optimize for (*current & *virgin) == 0 - i.e., no bits in current bitmap
        that have not been already cleared from the virgin map - since this will
        almost always be the case. */
 
-if (unlikely(*current) && unlikely(*current & *virgin)) {
+        if (unlikely(*current) && unlikely(*current & *virgin)) {
 
-if (likely(ret < 2)) {
+            if (likely(ret < 2)) {
 
-u8 *cur = (u8 *) current;
-u8 *vir = (u8 *) virgin;
+                u8 *cur = (u8 *) current;
+                u8 *vir = (u8 *) virgin;
 
 /* Looks like we have not found any new bytes yet; see if any non-zero
            bytes in current[] are pristine in virgin[]. */
 
 #ifdef WORD_SIZE_64
 
-                                                                                                                        if ((cur[0] && vir[0] == 0xff) || (cur[1] && vir[1] == 0xff) ||
-            (cur[2] && vir[2] == 0xff) || (cur[3] && vir[3] == 0xff) ||
-            (cur[4] && vir[4] == 0xff) || (cur[5] && vir[5] == 0xff) ||
-            (cur[6] && vir[6] == 0xff) || (cur[7] && vir[7] == 0xff)) ret = 2;
-        else ret = 1;
+                if ((cur[0] && vir[0] == 0xff) || (cur[1] && vir[1] == 0xff) ||
+                    (cur[2] && vir[2] == 0xff) || (cur[3] && vir[3] == 0xff) ||
+                    (cur[4] && vir[4] == 0xff) || (cur[5] && vir[5] == 0xff) ||
+                    (cur[6] && vir[6] == 0xff) || (cur[7] && vir[7] == 0xff))
+                    ret = 2;
+                else ret = 1;
 
 #else
 
-if ((cur[0] && vir[0] == 0xff) || (cur[1] && vir[1] == 0xff) ||
-(cur[2] && vir[2] == 0xff) || (cur[3] && vir[3] == 0xff))
-ret = 2;
-else
-ret = 1;
+                if ((cur[0] && vir[0] == 0xff) || (cur[1] && vir[1] == 0xff) ||
+                (cur[2] && vir[2] == 0xff) || (cur[3] && vir[3] == 0xff))
+                ret = 2;
+                else
+                ret = 1;
 
 #endif /* ^WORD_SIZE_64 */
 
-}
+            }
 
-*virgin &= ~*
-current;
+            *virgin &= ~*
+                    current;
 
-}
+        }
 
-current++;
-virgin++;
+        current++;
+        virgin++;
 
-}
+    }
 
-if (ret && virgin_map == virgin_bits)
-bitmap_changed = 1;
+    if (ret && virgin_map == virgin_bits)
+        bitmap_changed = 1;
 
-return
-ret;
+    return
+            ret;
 
 }
 
@@ -1831,7 +1831,7 @@ ret;
 
 static u32 count_bits(u8 *mem) {
 
-    u32 * ptr = (u32 *) mem;
+    u32 *ptr = (u32 *) mem;
     u32 i = (MAP_SIZE >> 2);
     u32 ret = 0;
 
@@ -1866,7 +1866,7 @@ static u32 count_bits(u8 *mem) {
 
 static u32 count_bytes(u8 *mem) {
 
-    u32 * ptr = (u32 *) mem;
+    u32 *ptr = (u32 *) mem;
     u32 i = (MAP_SIZE >> 2);
     u32 ret = 0;
 
@@ -1892,7 +1892,7 @@ static u32 count_bytes(u8 *mem) {
 
 static u32 count_non_255_bytes(u8 *mem) {
 
-    u32 * ptr = (u32 *) mem;
+    u32 *ptr = (u32 *) mem;
     u32 i = (MAP_SIZE >> 2);
     u32 ret = 0;
 
@@ -1930,32 +1930,32 @@ static const u8 simplify_lookup[256] = {
 
 #ifdef WORD_SIZE_64
 
-                                                                                                                        static void simplify_trace(u64* mem) {
+static void simplify_trace(u64 *mem) {
 
-  u32 i = MAP_SIZE >> 3;
+    u32 i = MAP_SIZE >> 3;
 
-  while (i--) {
+    while (i--) {
 
-    /* Optimize for sparse bitmaps. */
+        /* Optimize for sparse bitmaps. */
 
-    if (unlikely(*mem)) {
+        if (unlikely(*mem)) {
 
-      u8* mem8 = (u8*)mem;
+            u8 *mem8 = (u8 *) mem;
 
-      mem8[0] = simplify_lookup[mem8[0]];
-      mem8[1] = simplify_lookup[mem8[1]];
-      mem8[2] = simplify_lookup[mem8[2]];
-      mem8[3] = simplify_lookup[mem8[3]];
-      mem8[4] = simplify_lookup[mem8[4]];
-      mem8[5] = simplify_lookup[mem8[5]];
-      mem8[6] = simplify_lookup[mem8[6]];
-      mem8[7] = simplify_lookup[mem8[7]];
+            mem8[0] = simplify_lookup[mem8[0]];
+            mem8[1] = simplify_lookup[mem8[1]];
+            mem8[2] = simplify_lookup[mem8[2]];
+            mem8[3] = simplify_lookup[mem8[3]];
+            mem8[4] = simplify_lookup[mem8[4]];
+            mem8[5] = simplify_lookup[mem8[5]];
+            mem8[6] = simplify_lookup[mem8[6]];
+            mem8[7] = simplify_lookup[mem8[7]];
 
-    } else *mem = 0x0101010101010101ULL;
+        } else *mem = 0x0101010101010101ULL;
 
-    mem++;
+        mem++;
 
-  }
+    }
 
 }
 
@@ -2024,28 +2024,28 @@ EXP_ST void init_count_class16(void) {
 
 #ifdef WORD_SIZE_64
 
-                                                                                                                        static inline void classify_counts(u64* mem) {
+static inline void classify_counts(u64 *mem) {
 
-  u32 i = MAP_SIZE >> 3;
+    u32 i = MAP_SIZE >> 3;
 
-  while (i--) {
+    while (i--) {
 
-    /* Optimize for sparse bitmaps. */
+        /* Optimize for sparse bitmaps. */
 
-    if (unlikely(*mem)) {
+        if (unlikely(*mem)) {
 
-      u16* mem16 = (u16*)mem;
+            u16 *mem16 = (u16 *) mem;
 
-      mem16[0] = count_class_lookup16[mem16[0]];
-      mem16[1] = count_class_lookup16[mem16[1]];
-      mem16[2] = count_class_lookup16[mem16[2]];
-      mem16[3] = count_class_lookup16[mem16[3]];
+            mem16[0] = count_class_lookup16[mem16[0]];
+            mem16[1] = count_class_lookup16[mem16[1]];
+            mem16[2] = count_class_lookup16[mem16[2]];
+            mem16[3] = count_class_lookup16[mem16[3]];
+
+        }
+
+        mem++;
 
     }
-
-    mem++;
-
-  }
 
 }
 
@@ -2234,7 +2234,7 @@ static void cull_queue(void) {
 
 EXP_ST void setup_shm(void) {
 
-    u8 * shm_str;
+    u8 *shm_str;
 
     if (!in_bitmap) memset(virgin_bits, 255, MAP_SIZE);
 
@@ -2270,7 +2270,7 @@ EXP_ST void setup_shm(void) {
 static void setup_post(void) {
 
     void *dh;
-    u8 * fn = getenv("AFL_POST_LIBRARY");
+    u8 *fn = getenv("AFL_POST_LIBRARY");
     u32 tlen = 6;
 
     if (!fn) return;
@@ -2300,7 +2300,7 @@ static void read_testcases(void) {
     struct dirent **nl;
     s32 nl_cnt;
     u32 i;
-    u8 * fn;
+    u8 *fn;
 
     /* AFLNet: set this flag to enable request extractions while adding new seed to the queue */
     corpus_read_or_sync = 1;
@@ -2343,8 +2343,8 @@ static void read_testcases(void) {
 
         struct stat st;
 
-        u8 * fn = alloc_printf("%s/%s", in_dir, nl[i]->d_name);
-        u8 * dfn = alloc_printf("%s/.state/deterministic_done/%s", in_dir, nl[i]->d_name);
+        u8 *fn = alloc_printf("%s/%s", in_dir, nl[i]->d_name);
+        u8 *dfn = alloc_printf("%s/.state/deterministic_done/%s", in_dir, nl[i]->d_name);
 
         u8 passed_det = 0;
 
@@ -2426,7 +2426,7 @@ static void load_extras_file(u8 *fname, u32 *min_len, u32 *max_len,
 
     FILE *f;
     u8 buf[MAX_LINE];
-    u8 * lptr;
+    u8 *lptr;
     u32 cur_line = 0;
 
     f = fopen(fname, "r");
@@ -2435,7 +2435,7 @@ static void load_extras_file(u8 *fname, u32 *min_len, u32 *max_len,
 
     while ((lptr = fgets(buf, MAX_LINE, f))) {
 
-        u8 * rptr, *wptr;
+        u8 *rptr, *wptr;
         u32 klen = 0;
 
         cur_line++;
@@ -2563,7 +2563,7 @@ static void load_extras(u8 *dir) {
     DIR *d;
     struct dirent *de;
     u32 min_len = MAX_DICT_FILE, max_len = 0, dict_level = 0;
-    u8 * x;
+    u8 *x;
 
     /* If the name ends with @, extract level and continue. */
 
@@ -2594,7 +2594,7 @@ static void load_extras(u8 *dir) {
     while ((de = readdir(d))) {
 
         struct stat st;
-        u8 * fn = alloc_printf("%s/%s", dir, de->d_name);
+        u8 *fn = alloc_printf("%s/%s", dir, de->d_name);
         s32 fd;
 
         if (lstat(fn, &st) || access(fn, R_OK))
@@ -2660,16 +2660,18 @@ static void load_extras(u8 *dir) {
 
 static inline u8
 memcmp_nocase(u8
-* m1,
-u8 *m2, u32
-len) {
+              *m1,
+              u8 *m2, u32
+              len) {
 
-while (len--) if (
-tolower(*(m1
-++)) ^
-tolower(*(m2
-++))) return 1;
-return 0;
+    while (len--)
+        if (
+                tolower(*(m1
+                        ++)) ^
+                tolower(*(m2
+                        ++)))
+            return 1;
+    return 0;
 
 }
 
@@ -2793,7 +2795,7 @@ static void save_auto(void) {
 
     for (i = 0; i < MIN(USE_AUTO_EXTRAS, a_extras_cnt); i++) {
 
-        u8 * fn = alloc_printf("%s/queue/.state/auto_extras/auto_%06u", out_dir, i);
+        u8 *fn = alloc_printf("%s/queue/.state/auto_extras/auto_%06u", out_dir, i);
         s32 fd;
 
         fd = open(fn, O_WRONLY | O_CREAT | O_TRUNC, 0600);
@@ -2819,7 +2821,7 @@ static void load_auto(void) {
     for (i = 0; i < USE_AUTO_EXTRAS; i++) {
 
         u8 tmp[MAX_AUTO_EXTRA + 1];
-        u8 * fn = alloc_printf("%s/.state/auto_extras/auto_%06u", in_dir, i);
+        u8 *fn = alloc_printf("%s/.state/auto_extras/auto_%06u", in_dir, i);
         s32 fd, len;
 
         fd = open(fn, O_RDONLY, 0600);
@@ -3368,7 +3370,7 @@ static u8 run_target(char **argv, u32 timeout) {
     tb4 = *(u32 *) trace_bits;
 
 #ifdef WORD_SIZE_64
-    classify_counts((u64*)trace_bits);
+    classify_counts((u64 *) trace_bits);
 #else
     classify_counts((u32 *) trace_bits);
 #endif /* ^WORD_SIZE_64 */
@@ -3439,7 +3441,7 @@ static u8 calibrate_case(char **argv, struct queue_entry *q, u8 *use_mem,
 
     s32 old_sc = stage_cur, old_sm = stage_max;
     u32 use_tmout = exec_tmout;
-    u8 * old_sn = stage_name;
+    u8 *old_sn = stage_name;
 
     /* Be a bit more generous about timeouts when resuming sessions, or when
      trying to calibrate already-added finds. This helps avoid trouble due
@@ -3597,17 +3599,17 @@ static void perform_dry_run(char **argv) {
 
     struct queue_entry *q = queue;
     u32 cal_failures = 0;
-    u8 * skip_crashes = getenv("AFL_SKIP_CRASHES");
+    u8 *skip_crashes = getenv("AFL_SKIP_CRASHES");
 
     while (q) {
 
-        u8 * use_mem;
+        u8 *use_mem;
         u8 res;
         s32 fd;
 
         q->is_initial_seed = 1;
 
-        u8 * fn = strrchr(q->fname, '/') + 1;
+        u8 *fn = strrchr(q->fname, '/') + 1;
 
         ACTF("Attempting dry run with '%s'...", fn);
 
@@ -3631,7 +3633,7 @@ static void perform_dry_run(char **argv) {
         if (state_aware_mode) update_state_aware_variables(q, 1);
 
         /* save the seed to file for replaying */
-        u8 * fn_replay = alloc_printf("%s/replayable-queue/%s", out_dir, basename(q->fname));
+        u8 *fn_replay = alloc_printf("%s/replayable-queue/%s", out_dir, basename(q->fname));
         save_kl_messages_to_file(kl_messages, fn_replay, 1, messages_sent);
         ck_free(fn_replay);
 
@@ -3817,7 +3819,7 @@ static void link_or_copy(u8 *old_path, u8 *new_path) {
 
     s32 i = link(old_path, new_path);
     s32 sfd, dfd;
-    u8 * tmp;
+    u8 *tmp;
 
     if (!i) return;
 
@@ -3855,7 +3857,7 @@ static void pivot_inputs(void) {
 
     while (q) {
 
-        u8 * nfn, *rsl = strrchr(q->fname, '/');
+        u8 *nfn, *rsl = strrchr(q->fname, '/');
         u32 orig_id;
 
         if (!rsl) rsl = q->fname; else rsl++;
@@ -3873,7 +3875,7 @@ static void pivot_inputs(void) {
         if (!strncmp(rsl, CASE_PREFIX, 3) &&
             sscanf(rsl + 3, "%06u", &orig_id) == 1 && orig_id == id) {
 
-            u8 * src_str;
+            u8 *src_str;
             u32 src_id;
 
             resuming_fuzz = 1;
@@ -3901,7 +3903,7 @@ static void pivot_inputs(void) {
 
 #ifndef SIMPLE_FILES
 
-            u8 * use_name = strstr(rsl, ",orig:");
+            u8 *use_name = strstr(rsl, ",orig:");
 
             if (use_name) use_name += 6; else use_name = rsl;
             nfn = alloc_printf("%s/queue/id:%06u,orig:%s", out_dir, id, use_name);
@@ -3982,7 +3984,7 @@ static u8 *describe_op(u8 hnb) {
 
 static void write_crash_readme(void) {
 
-    u8 * fn = alloc_printf("%s/replayable-crashes/README.txt", out_dir);
+    u8 *fn = alloc_printf("%s/replayable-crashes/README.txt", out_dir);
     s32 fd;
     FILE *f;
 
@@ -4031,7 +4033,7 @@ static void write_crash_readme(void) {
 
 static u8 save_if_interesting(char **argv, void *mem, u32 len, u8 fault) {
 
-    u8 * fn = "";
+    u8 *fn = "";
     u8 hnb;
     //s32 fd;
     u8 keeping = 0, res;
@@ -4065,7 +4067,7 @@ static u8 save_if_interesting(char **argv, void *mem, u32 len, u8 fault) {
         if (state_aware_mode) update_state_aware_variables(queue_top, 0);
 
         /* save the seed to file for replaying */
-        u8 * fn_replay = alloc_printf("%s/replayable-queue/%s", out_dir, basename(queue_top->fname));
+        u8 *fn_replay = alloc_printf("%s/replayable-queue/%s", out_dir, basename(queue_top->fname));
         save_kl_messages_to_file(kl_messages, fn_replay, 1, messages_sent);
         ck_free(fn_replay);
 
@@ -4109,7 +4111,7 @@ static u8 save_if_interesting(char **argv, void *mem, u32 len, u8 fault) {
             if (!dumb_mode) {
 
 #ifdef WORD_SIZE_64
-                simplify_trace((u64*)trace_bits);
+                simplify_trace((u64 *) trace_bits);
 #else
                 simplify_trace((u32 *) trace_bits);
 #endif /* ^WORD_SIZE_64 */
@@ -4173,7 +4175,7 @@ static u8 save_if_interesting(char **argv, void *mem, u32 len, u8 fault) {
             if (!dumb_mode) {
 
 #ifdef WORD_SIZE_64
-                simplify_trace((u64*)trace_bits);
+                simplify_trace((u64 *) trace_bits);
 #else
                 simplify_trace((u32 *) trace_bits);
 #endif /* ^WORD_SIZE_64 */
@@ -4235,7 +4237,7 @@ static u32 find_start_position(void) {
 
     static u8 tmp[4096]; /* Ought to be enough for anybody. */
 
-    u8 * fn, *off;
+    u8 *fn, *off;
     s32 fd, i;
     u32 ret;
 
@@ -4271,7 +4273,7 @@ static void find_timeout(void) {
 
     static u8 tmp[4096]; /* Ought to be enough for anybody. */
 
-    u8 * fn, *off;
+    u8 *fn, *off;
     s32 fd, i;
     u32 ret;
 
@@ -4308,7 +4310,7 @@ static void write_stats_file(double bitmap_cvg, double stability, double eps) {
     static double last_bcvg, last_stab, last_eps;
     static struct rusage usage;
 
-    u8 * fn = alloc_printf("%s/fuzzer_stats", out_dir);
+    u8 *fn = alloc_printf("%s/fuzzer_stats", out_dir);
     s32 fd;
     FILE *f;
 
@@ -4456,7 +4458,7 @@ static u8 delete_files(u8 *path, u8 *prefix) {
         if (d_ent->d_name[0] != '.' && (!prefix ||
                                         !strncmp(d_ent->d_name, prefix, strlen(prefix)))) {
 
-            u8 * fname = alloc_printf("%s/%s", path, d_ent->d_name);
+            u8 *fname = alloc_printf("%s/%s", path, d_ent->d_name);
             if (unlink(fname)) PFATAL("Unable to delete '%s'", fname);
             ck_free(fname);
 
@@ -4529,7 +4531,7 @@ static double get_runnable_processes(void) {
 
 static void nuke_resume_dir(void) {
 
-    u8 * fn;
+    u8 *fn;
 
     fn = alloc_printf("%s/_resume/.state/deterministic_done", out_dir);
     if (delete_files(fn, CASE_PREFIX)) goto dir_cleanup_failed;
@@ -4570,7 +4572,7 @@ static void nuke_resume_dir(void) {
 static void maybe_delete_out_dir(void) {
 
     FILE *f;
-    u8 * fn = alloc_printf("%s/fuzzer_stats", out_dir);
+    u8 *fn = alloc_printf("%s/fuzzer_stats", out_dir);
 
     /* See if the output directory is locked. If yes, bail out. If not,
      create a lock that will persist for the lifetime of the process
@@ -4637,7 +4639,7 @@ static void maybe_delete_out_dir(void) {
 
     if (in_place_resume) {
 
-        u8 * orig_q = alloc_printf("%s/queue", out_dir);
+        u8 *orig_q = alloc_printf("%s/queue", out_dir);
 
         in_dir = alloc_printf("%s/_resume", out_dir);
 
@@ -4717,9 +4719,9 @@ static void maybe_delete_out_dir(void) {
 
 #ifndef SIMPLE_FILES
 
-        u8 * nfn = alloc_printf("%s.%04u-%02u-%02u-%02u:%02u:%02u", fn,
-                                t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
-                                t->tm_hour, t->tm_min, t->tm_sec);
+        u8 *nfn = alloc_printf("%s.%04u-%02u-%02u-%02u:%02u:%02u", fn,
+                               t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
+                               t->tm_hour, t->tm_min, t->tm_sec);
 
 #else
 
@@ -4748,9 +4750,9 @@ static void maybe_delete_out_dir(void) {
 
 #ifndef SIMPLE_FILES
 
-        u8 * nfn = alloc_printf("%s.%04u-%02u-%02u-%02u:%02u:%02u", fn,
-                                t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
-                                t->tm_hour, t->tm_min, t->tm_sec);
+        u8 *nfn = alloc_printf("%s.%04u-%02u-%02u-%02u:%02u:%02u", fn,
+                               t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
+                               t->tm_hour, t->tm_min, t->tm_sec);
 
 #else
 
@@ -5268,7 +5270,7 @@ static void show_stats(void) {
         double cur_runnable = get_runnable_processes();
         u32 cur_utilization = cur_runnable * 100 / cpu_core_count;
 
-        u8 * cpu_color = cCYA;
+        u8 *cpu_color = cCYA;
 
         /* If we could still run one or more processes, use green. */
 
@@ -5281,18 +5283,18 @@ static void show_stats(void) {
 
 #ifdef HAVE_AFFINITY
 
-                                                                                                                                    if (cpu_aff >= 0) {
+        if (cpu_aff >= 0) {
 
-      SAYF(SP10 cGRA "[cpu%03u:%s%3u%%" cGRA "]\r" cRST,
-           MIN(cpu_aff, 999), cpu_color,
-           MIN(cur_utilization, 999));
+            SAYF(SP10 cGRA "[cpu%03u:%s%3u%%" cGRA "]\r" cRST,
+                 MIN(cpu_aff, 999), cpu_color,
+                 MIN(cur_utilization, 999));
 
-    } else {
+        } else {
 
-      SAYF(SP10 cGRA "   [cpu:%s%3u%%" cGRA "]\r" cRST,
-           cpu_color, MIN(cur_utilization, 999));
+            SAYF(SP10 cGRA "   [cpu:%s%3u%%" cGRA "]\r" cRST,
+                 cpu_color, MIN(cur_utilization, 999));
 
-   }
+        }
 
 #else
 
@@ -5467,7 +5469,7 @@ EXP_ST u8 common_fuzz_stuff(char **argv, u8 *out_buf, u32 len) {
 
     // update kl_messages linked list
     u32 i;
-    kliter_t(lms) * prev_last_message, *cur_last_message;
+    kliter_t(lms) *prev_last_message, *cur_last_message;
     prev_last_message = get_last_message(kl_messages);
 
     // limit the #messages based on max_seed_region_count to reduce overhead
@@ -5481,7 +5483,7 @@ EXP_ST u8 common_fuzz_stuff(char **argv, u8 *out_buf, u32 len) {
         }
 
         //Create a new message
-        message_t * m = (message_t *) ck_alloc(sizeof(message_t));
+        message_t *m = (message_t *) ck_alloc(sizeof(message_t));
         m->mdata = (char *) ck_alloc(len);
         m->msize = len;
         if (m->mdata == NULL) PFATAL("Unable to allocate memory region to store new message");
@@ -5506,7 +5508,7 @@ EXP_ST u8 common_fuzz_stuff(char **argv, u8 *out_buf, u32 len) {
     // update the linked list with the new M2 & free the previous M2
 
     //detach the head of previous M2 from the list
-    kliter_t(lms) * old_M2_start;
+    kliter_t(lms) *old_M2_start;
     if (M2_prev == NULL) {
         old_M2_start = kl_begin(kl_messages);
         kl_begin(kl_messages) = kl_next(prev_last_message);
@@ -5520,7 +5522,7 @@ EXP_ST u8 common_fuzz_stuff(char **argv, u8 *out_buf, u32 len) {
     }
 
     // free the previous M2
-    kliter_t(lms) * cur_it, *next_it;
+    kliter_t(lms) *cur_it, *next_it;
     cur_it = old_M2_start;
     next_it = kl_next(cur_it);
     do {
@@ -5908,7 +5910,7 @@ static u8 could_be_interest(u32 old_val, u32 new_val, u8 blen, u8 check_le) {
 static u8 fuzz_one(char **argv) { //变异
 
     s32 len, fd, temp_len, i, j;
-    u8 * in_buf = NULL, *out_buf, *orig_in, *ex_tmp, *eff_map = 0;
+    u8 *in_buf = NULL, *out_buf, *orig_in, *ex_tmp, *eff_map = 0;
     u64 havoc_queued, orig_hit_cnt, new_hit_cnt;
     u32 splice_cycle = 0, perf_score = 100, orig_perf, prev_cksum, eff_cnt = 1, M2_len;
 
@@ -6034,7 +6036,7 @@ static u8 fuzz_one(char **argv) { //变异
     /* Construct the kl_messages linked list and identify boundary pointers (M2_prev and M2_next) */
     kl_messages = construct_kl_messages(queue_cur->fname, queue_cur->regions, queue_cur->region_count);
 
-    kliter_t(lms) * it;
+    kliter_t(lms) *it;
 
     M2_prev = NULL;
     M2_next = kl_end(kl_messages);
@@ -7314,7 +7316,7 @@ static u8 fuzz_one(char **argv) { //变异
 
                         u8 actually_clone = UR(4);
                         u32 clone_from, clone_to, clone_len;
-                        u8 * new_buf;
+                        u8 *new_buf;
 
                         if (actually_clone) {
 
@@ -7428,7 +7430,7 @@ static u8 fuzz_one(char **argv) { //变异
                     if (extras_cnt + a_extras_cnt == 0) break;
 
                     u32 use_extra, extra_len, insert_at = UR(temp_len + 1);
-                    u8 * new_buf;
+                    u8 *new_buf;
 
                     /* Insert an extra. Do the same dice-rolling stuff as for the
                previous case. */
@@ -7481,7 +7483,7 @@ static u8 fuzz_one(char **argv) { //变异
                     /* Replace the current region with a random region from a random seed */
                 case 17: {
                     u32 src_region_len = 0;
-                    u8 * new_buf = choose_source_region(&src_region_len);
+                    u8 *new_buf = choose_source_region(&src_region_len);
                     if (new_buf == NULL) break;
 
                     //replace the current region
@@ -7494,7 +7496,7 @@ static u8 fuzz_one(char **argv) { //变异
                     /* Insert a random region from a random seed to the beginning of the current region */
                 case 18: {
                     u32 src_region_len = 0;
-                    u8 * src_region = choose_source_region(&src_region_len);
+                    u8 *src_region = choose_source_region(&src_region_len);
                     if (src_region == NULL) break;
 
                     if (temp_len + src_region_len >= MAX_FILE) {
@@ -7502,7 +7504,7 @@ static u8 fuzz_one(char **argv) { //变异
                         break;
                     }
 
-                    u8 * new_buf = ck_alloc_nozero(temp_len + src_region_len);
+                    u8 *new_buf = ck_alloc_nozero(temp_len + src_region_len);
 
                     memcpy(new_buf, src_region, src_region_len);
 
@@ -7518,7 +7520,7 @@ static u8 fuzz_one(char **argv) { //变异
                     /* Insert a random region from a random seed to the end of the current region */
                 case 19: {
                     u32 src_region_len = 0;
-                    u8 * src_region = choose_source_region(&src_region_len);
+                    u8 *src_region = choose_source_region(&src_region_len);
                     if (src_region == NULL) break;
 
                     if (temp_len + src_region_len >= MAX_FILE) {
@@ -7526,7 +7528,7 @@ static u8 fuzz_one(char **argv) { //变异
                         break;
                     }
 
-                    u8 * new_buf = ck_alloc_nozero(temp_len + src_region_len);
+                    u8 *new_buf = ck_alloc_nozero(temp_len + src_region_len);
 
                     memcpy(new_buf, out_buf, temp_len);
 
@@ -7543,7 +7545,7 @@ static u8 fuzz_one(char **argv) { //变异
                 case 20: {
                     if (temp_len * 2 >= MAX_FILE) break;
 
-                    u8 * new_buf = ck_alloc_nozero(temp_len * 2);
+                    u8 *new_buf = ck_alloc_nozero(temp_len * 2);
 
                     memcpy(new_buf, out_buf, temp_len);
 
@@ -7613,7 +7615,7 @@ static u8 fuzz_one(char **argv) { //变异
 
         struct queue_entry *target;
         u32 tid, split_at;
-        u8 * new_buf;
+        u8 *new_buf;
         s32 f_diff, l_diff;
 
         /* First of all, if we've modified in_buf for havoc, let's clean that
@@ -7744,7 +7746,7 @@ static void sync_fuzzers(char **argv) {
 
         DIR *qd;
         struct dirent *qd_ent;
-        u8 * qd_path, *qd_synced_path;
+        u8 *qd_path, *qd_synced_path;
         u32 min_accept = 0, next_min_accept;
 
         s32 id_fd;
@@ -7787,7 +7789,7 @@ static void sync_fuzzers(char **argv) {
 
         while ((qd_ent = readdir(qd))) {
 
-            u8 * path;
+            u8 *path;
             s32 fd;
             struct stat st;
 
@@ -7819,7 +7821,7 @@ static void sync_fuzzers(char **argv) {
             if (st.st_size && st.st_size <= MAX_FILE) {
 
                 u8 fault;
-                u8 * mem = mmap(0, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+                u8 *mem = mmap(0, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
 
                 if (mem == MAP_FAILED) PFATAL("Unable to mmap '%s'", path);
 
@@ -7921,11 +7923,11 @@ static void handle_timeout(int sig) {
 
 EXP_ST void check_binary(u8 *fname) {
 
-    u8 * env_path = 0;
+    u8 *env_path = 0;
     struct stat st;
 
     s32 fd;
-    u8 * f_data;
+    u8 *f_data;
     u32 f_len = 0;
 
     ACTF("Validating target binary...");
@@ -7941,7 +7943,7 @@ EXP_ST void check_binary(u8 *fname) {
 
         while (env_path) {
 
-            u8 * cur_elem, *delim = strchr(env_path, ':');
+            u8 *cur_elem, *delim = strchr(env_path, ':');
 
             if (delim) {
 
@@ -8098,7 +8100,7 @@ static void fix_up_banner(u8 *name) {
 
         } else {
 
-            u8 * trim = strrchr(name, '/');
+            u8 *trim = strrchr(name, '/');
             if (!trim) use_banner = name; else use_banner = trim + 1;
 
         }
@@ -8107,7 +8109,7 @@ static void fix_up_banner(u8 *name) {
 
     if (strlen(use_banner) > 40) {
 
-        u8 * tmp = ck_alloc(44);
+        u8 *tmp = ck_alloc(44);
         sprintf(tmp, "%.40s...", use_banner);
         use_banner = tmp;
 
@@ -8216,7 +8218,7 @@ static void usage(u8 *argv0) {
 
 EXP_ST void setup_dirs_fds(void) {
 
-    u8 * tmp;
+    u8 *tmp;
     s32 fd;
 
     ACTF("Setting up output directories...");
@@ -8357,7 +8359,7 @@ EXP_ST void setup_dirs_fds(void) {
 
 EXP_ST void setup_stdio_file(void) {
 
-    u8 * fn = alloc_printf("%s/.cur_input", out_dir);
+    u8 *fn = alloc_printf("%s/.cur_input", out_dir);
 
     unlink(fn); /* Ignore errors */
 
@@ -8583,7 +8585,7 @@ static void get_core_count(void) {
 
 static void fix_up_sync(void) {
 
-    u8 * x = sync_id;
+    u8 *x = sync_id;
 
     if (dumb_mode)
         FATAL("-S / -M and -n are mutually exclusive");
@@ -8631,7 +8633,7 @@ static void handle_resize(int sig) {
 /* Check ASAN options. */
 
 static void check_asan_opts(void) {
-    u8 * x = getenv("ASAN_OPTIONS");
+    u8 *x = getenv("ASAN_OPTIONS");
 
     if (x) {
 
@@ -8664,17 +8666,17 @@ static void check_asan_opts(void) {
 EXP_ST void detect_file_args(char **argv) {
 
     u32 i = 0;
-    u8 * cwd = getcwd(NULL, 0);
+    u8 *cwd = getcwd(NULL, 0);
 
     if (!cwd) PFATAL("getcwd() failed");
 
     while (argv[i]) {
 
-        u8 * aa_loc = strstr(argv[i], "@@");
+        u8 *aa_loc = strstr(argv[i], "@@");
 
         if (aa_loc) {
 
-            u8 * aa_subst, *n_arg;
+            u8 *aa_subst, *n_arg;
 
             /* If we don't have a file name chosen yet, use a safe default. */
 
@@ -8756,7 +8758,7 @@ EXP_ST void setup_signal_handlers(void) {
 static char **get_qemu_argv(u8 *own_loc, char **argv, int argc) {
 
     char **new_argv = ck_alloc(sizeof(char *) * (argc + 4));
-    u8 * tmp, *cp, *rsl, *own_copy;
+    u8 *tmp, *cp, *rsl, *own_copy;
 
     /* Workaround for a QEMU stability glitch. */
 
@@ -8806,7 +8808,7 @@ static char **get_qemu_argv(u8 *own_loc, char **argv, int argc) {
     if (!access(BIN_PATH "/afl-qemu-trace", X_OK)) {
 
         target_path = new_argv[0] = ck_strdup(BIN_PATH
-        "/afl-qemu-trace");
+                                              "/afl-qemu-trace");
         return new_argv;
 
     }
@@ -8831,7 +8833,7 @@ static char **get_qemu_argv(u8 *own_loc, char **argv, int argc) {
 static void save_cmdline(u32 argc, char **argv) {
 
     u32 len = 1, i;
-    u8 * buf;
+    u8 *buf;
 
     for (i = 0; i < argc; i++)
         len += strlen(argv[i]) + 1;
@@ -8918,7 +8920,7 @@ int main(int argc, char **argv) {
     s32 opt;
     u64 prev_queued = 0;
     u32 sync_interval_cnt = 0, seek_to;
-    u8 * extras_dir = 0;
+    u8 *extras_dir = 0;
     u8 mem_limit_given = 0; //是否有内存限制
     u8 exit_1 = !!getenv("AFL_BENCH_JUST_ONE");
     //char** use_argv; //用户输出参数
@@ -8972,7 +8974,7 @@ int main(int argc, char **argv) {
 
             case 'M': { /* master sync ID */
 
-                u8 * c;
+                u8 *c;
 
                 if (sync_id) FATAL("Multiple -S or -M options not supported");
                 sync_id = ck_strdup(optarg);

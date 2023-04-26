@@ -35,6 +35,8 @@
    note that there is no equivalent for GCC.
 
 */
+// afl-as的大致逻辑是处理汇编代码，在分支处插入桩代码，并最终再调用as（linux下的assembler）进行真正的汇编
+// 在处理某个分支时，需要插入桩代码时，afl-as会生成一个随机数，用来标识这个代码块的key
 
 #define AFL_MAIN
 

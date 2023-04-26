@@ -306,6 +306,8 @@ static void edit_params(u32 argc, char** argv) {
 
 
 /* Main entry point */
+// afl-gcc就是对gcc的一个封装，会在gcc的基础上调用afl-as
+// afl-as是对.s文件进行插桩操作，在其中有跳转的的位置插入汇编码，实现在程序跳转时能够通过在跳转处的插桩掌握程序的执行路径。在函数add_instrumentation（）中对输入的汇编代码.s文件进行操作，下列代码将识别跳转（je，jnz之类）。
 
 int main(int argc, char** argv) {
 
@@ -333,11 +335,11 @@ int main(int argc, char** argv) {
 
   }
 
-  find_as(argv[0]);
+  find_as(argv[0]); //查找使用的汇编器
 
-  edit_params(argc, argv);
+  edit_params(argc, argv); //处理传入的编译参数，将确定好的参数放入 cc_params[] 数组
 
-  execvp(cc_params[0], (char**)cc_params);
+  execvp(cc_params[0], (char**)cc_params); //调用，并执行afl-gcc
 
   FATAL("Oops, failed to execute '%s' - check your PATH", cc_params[0]);
 

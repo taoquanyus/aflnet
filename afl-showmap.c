@@ -157,11 +157,11 @@ static void setup_shm(void) {
 
   shm_str = alloc_printf("%d", shm_id);
 
-  setenv(SHM_ENV_VAR, shm_str, 1);
+  setenv(SHM_ENV_VAR, shm_str, 1); //设置环境变量，之后fork得到的子进程可以通过此环境变量，得到这块共享内存的标志符
 
   ck_free(shm_str);
 
-  trace_bits = shmat(shm_id, NULL, 0);
+  trace_bits = shmat(shm_id, NULL, 0);// trace_bits 用来保存共享内存的地址
   
   if (!trace_bits) PFATAL("shmat() failed");
 

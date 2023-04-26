@@ -1882,7 +1882,7 @@ static u32 count_bytes(u8 *mem) {
 
     }
 
-    return ret;
+    return ;
 
 }
 

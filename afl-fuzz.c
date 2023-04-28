@@ -9264,7 +9264,6 @@ int main(int argc, char **argv) {
         }
 
     if (optind == argc || !in_dir || !out_dir) usage(argv[0]);
-
     //AFLNet - Check for required arguments
     if (!use_net) FATAL("Please specify network information of the server under test (e.g., tcp://127.0.0.1/8554)");
 
@@ -9313,7 +9312,7 @@ int main(int argc, char **argv) {
 
     if (getenv("AFL_LD_PRELOAD"))
         FATAL("Use AFL_PRELOAD instead of AFL_LD_PRELOAD");
-
+    //start_flag
     save_cmdline(argc, argv);
 
     fix_up_banner(argv[optind]); //修剪并且创建一个运行横幅

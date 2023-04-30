@@ -1505,6 +1505,7 @@ unsigned int* extract_response_codes_ipp(unsigned char* buf, unsigned int buf_si
 // kl_messages manipulating functions
 
 klist_t(lms) *construct_kl_messages(u8* fname, region_t *regions, u32 region_count)
+// kl_message 实际上就是把多个region信息以链表的形式串在一块儿
 {
   FILE *fseed = NULL;
   fseed = fopen(fname, "rb");
@@ -1522,9 +1523,10 @@ klist_t(lms) *construct_kl_messages(u8* fname, region_t *regions, u32 region_cou
     m->mdata = (char *) ck_alloc(len);
     m->msize = len;
     if (m->mdata == NULL) PFATAL("Unable to allocate memory region to store new message");
-    fread(m->mdata, 1, len, fseed);
+    fread(m->mdata, 1, len, fseed); //这句话是最关键的，把种子信息存入到m.data
 
-    //Insert the message to the linked list
+    // Insert the message to the linked list
+    // 把m插入到kl_message的尾部
     *kl_pushp(lms, kl_messages) = m;
   }
 

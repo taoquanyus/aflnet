@@ -274,7 +274,7 @@ struct queue_entry { //测试用例队列
     u32 index;                          /* Index of this queue entry in the whole queue */
     u32 generating_state_id;            /* ID of the start at which the new seed was generated */
     u8 is_initial_seed;                 /* Is this an initial seed */
-    u32 unique_state_count;             /* Unique number of states traversed by this queue entry */
+    u32 unique_state_count;             /* Unique number of states traversed by this queue entry *///当前队列遍历的过程中出现
 
 };
 
@@ -1635,7 +1635,7 @@ static void add_to_queue(u8 *fname, u32 len, u8 passed_det) {
     }
 
     /* AFLNet: extract regions keeping client requests if needed */
-    if (corpus_read_or_sync) {
+    if (corpus_read_or_sync) {//通过协议和对应的提取获得region
         FILE *fp;
         unsigned char *buf;
 
@@ -1655,7 +1655,7 @@ static void add_to_queue(u8 *fname, u32 len, u8 passed_det) {
         if ((corpus_read_or_sync == 1) && (q->region_count > max_seed_region_count))
             max_seed_region_count = q->region_count;
 
-    } else {
+    } else {//从kl_message转化为region
         //Convert the linked list kl_messages to regions
         q->regions = convert_kl_messages_to_regions(kl_messages, &q->region_count, messages_sent);
     }
@@ -2885,11 +2885,11 @@ static void move_process_to_netns() {
         FATAL("Network namespace name \"%s\" is too long", netns_name);
 
     sprintf(netns_path, netns_path_fmt, netns_name);
-
+    // netns_path就是name space的名字
     netns_fd = open(netns_path, O_RDONLY);
     if (netns_fd == -1)
         PFATAL("Unable to open %s", netns_path);
-
+    //setns() 将当前进程加入到已有的 namespace 中
     if (setns(netns_fd, CLONE_NEWNET) == -1)
         PFATAL("setns failed");
 }
@@ -3428,7 +3428,9 @@ static void show_stats(void);
 /* Calibrate a new test case. This is done when processing the input directory
    to warn about flaky or otherwise problematic test cases early on; and when
    new paths are discovered to detect variable behavior and so on. */
+
 // 校准一个新的测试用例。这是在处理输入目录时完成的，以便在早期就警告有问题的测试用例;当发现新的路径来检测变量行为等等。
+// res = calibrate_case(argv, q, use_mem, 0, 1);
 static u8 calibrate_case(char **argv, struct queue_entry *q, u8 *use_mem,
                          u32 handicap, u8 from_queue) {
 
@@ -3634,6 +3636,7 @@ static void perform_dry_run(char **argv) {
 
         /* save the seed to file for replaying */
         u8 *fn_replay = alloc_printf("%s/replayable-queue/%s", out_dir, basename(q->fname));
+        //u32 save_kl_messages_to_file(klist_t(lms) *kl_messages, u8 *fname, u8 replay_enabled, u32 max_count)
         save_kl_messages_to_file(kl_messages, fn_replay, 1, messages_sent);
         ck_free(fn_replay);
 
@@ -9173,7 +9176,7 @@ int main(int argc, char **argv) {
 
                 if (!strcmp(optarg, "RTSP")) {
                     extract_requests = &extract_requests_rtsp;
-                    extract_response_codes = &extract_response_codes_rtsp;
+                    extraMainct_response_codes = &extract_response_codes_rtsp;
                 } else if (!strcmp(optarg, "FTP")) {
                     extract_requests = &extract_requests_ftp;
                     extract_response_codes = &extract_response_codes_ftp;
@@ -9189,12 +9192,7 @@ int main(int argc, char **argv) {
                 } else if (!strcmp(optarg, "SMTP")) {
                     extract_requests = &extract_requests_smtp;
                     extract_response_codes = &extract_response_codes_smtp;
-                } else if (!strcmp(optarg, "SSH")) {
-                    extract_requests = &extract_requests_ssh;
-                    extract_response_codes = &extract_response_codes_ssh;
-                } else if (!strcmp(optarg, "TLS")) {
-                    extract_requests = &extract_requests_tls;
-                    extract_response_codes = &extract_response_codes_tls;
+                } else ifMainct_response_codes = &extract_response_codes_tls;
                 } else if (!strcmp(optarg, "SIP")) {
                     extract_requests = &extract_requests_sip;
                     extract_response_codes = &extract_response_codes_sip;
@@ -9276,8 +9274,8 @@ int main(int argc, char **argv) {
                   "afl-fuzz with sudo or by \"$ setcap cap_sys_admin+ep /path/to/afl-fuzz\".", netns_name);
     }
 
-    setup_signal_handlers(); //设置信号句柄
-    check_asan_opts(); //检测asan选项
+    setup_signal_handlers();//设置信号句柄
+    check_asan_opts();//检测asan选项
 
     if (sync_id) fix_up_sync();
     //检查in out文件夹是否相同
@@ -9312,7 +9310,7 @@ int main(int argc, char **argv) {
 
     if (getenv("AFL_LD_PRELOAD"))
         FATAL("Use AFL_PRELOAD instead of AFL_LD_PRELOAD");
-    //start_flag
+    //start_here
     save_cmdline(argc, argv);
 
     fix_up_banner(argv[optind]); //修剪并且创建一个运行横幅

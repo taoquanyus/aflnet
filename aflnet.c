@@ -814,13 +814,13 @@ unsigned int* extract_response_codes_smtp(unsigned char* buf, unsigned int buf_s
 
   while (byte_count < buf_size) {
     memcpy(&mem[mem_count], buf + byte_count++, 1);
-
+    //memcmp 把存储区 str1 和存储区 str2 的前 n 个字节进行比较。
     if ((mem_count > 0) && (memcmp(&mem[mem_count - 1], terminator, 2) == 0)) {
       //Extract the response code which is the first 3 bytes
       char temp[4];
       memcpy(temp, mem, 4);
       temp[3] = 0x0;
-      unsigned int message_code = (unsigned int) atoi(temp);
+      unsigned int message_code = (unsigned int) atoi(temp); // 把参数 str 所指向的字符串转换为一个整数
 
       if (message_code == 0) break;
 
@@ -1523,7 +1523,7 @@ klist_t(lms) *construct_kl_messages(u8* fname, region_t *regions, u32 region_cou
     m->mdata = (char *) ck_alloc(len);
     m->msize = len;
     if (m->mdata == NULL) PFATAL("Unable to allocate memory region to store new message");
-    fread(m->mdata, 1, len, fseed); //这句话是最关键的，把种子信息存入到m.data
+    fread(m->mdata, 1, len, fseed); //这句话是最关键的，把种子信息存入到m.data,需要注意的是每一个region存入一个mdata，多个mdata构成一个klmessages
 
     // Insert the message to the linked list
     // 把m插入到kl_message的尾部
@@ -1648,6 +1648,7 @@ int net_send(int sockfd, struct timeval timeout, char *mem, unsigned int len) {
     if (pfd[0].revents & POLLOUT) {
       while (byte_count < len) {
         usleep(10);
+        //int send size = send(int aID, const char *buf, int len, int flags);
         n = send(sockfd, &mem[byte_count], len - byte_count, MSG_NOSIGNAL);
         if (n == 0) return byte_count;
         if (n == -1) return -1;
@@ -1670,6 +1671,7 @@ int net_recv(int sockfd, struct timeval timeout, int poll_w, char **response_buf
   // data received
   if (rv > 0) {
     if (pfd[0].revents & POLLIN) {
+      //int return_size = recv(int aID(socketID), char *buf(receive buffer), int len, int flags);
       n = recv(sockfd, temp_buf, sizeof(temp_buf), 0);
       if ((n < 0) && (errno != EAGAIN)) {
         return 1;
@@ -1677,8 +1679,9 @@ int net_recv(int sockfd, struct timeval timeout, int poll_w, char **response_buf
       while (n > 0) {
         usleep(10);
         *response_buf = (unsigned char *)ck_realloc(*response_buf, *len + n + 1);
+        //memcpy(dest, src, len);
         memcpy(&(*response_buf)[*len], temp_buf, n);
-        (*response_buf)[(*len) + n] = '\0';
+        (*response_buf)[(*len) + n] = '\0';//每次收到的信息都会用\0来作为分割
         *len = *len + n;
         n = recv(sockfd, temp_buf, sizeof(temp_buf), 0);
         if ((n < 0) && (errno != EAGAIN)) {

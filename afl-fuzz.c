@@ -489,11 +489,12 @@ u32 get_unique_state_count(unsigned int *state_sequence, unsigned int state_coun
 
     for (i = 0; i < state_count; i++) {
         state_id = state_sequence[i];
-
-        if (kh_get(hs32, khs_state_ids, state_id) != kh_end(khs_state_ids)) {
+        //kh_get(name, hashtable, k)
+        //kh_end 哈希表的底端
+        if (kh_get(hs32, khs_state_ids, state_id) != kh_end(khs_state_ids)) {//如果不为空就跳过
             continue;
         } else {
-            kh_put(hs32, khs_state_ids, state_id, &discard);
+            kh_put(hs32, khs_state_ids, state_id, &discard);//为空就插入
             result++;
         }
     }
@@ -533,7 +534,7 @@ u8 is_state_sequence_interesting(unsigned int *state_sequence, unsigned int stat
 void update_region_annotations(struct queue_entry *q) {
     u32 i = 0;
 
-    for (i = 0; i < messages_sent; i++) {
+    for (i = 0; i < messages_sent; i++) {//从这里也可以看出，一个region对应一个message
         if ((response_bytes[i] == 0) || (i > 0 && (response_bytes[i] - response_bytes[i - 1] == 0))) {
             q->regions[i].state_sequence = NULL;
             q->regions[i].state_count = 0;
@@ -776,6 +777,7 @@ struct queue_entry *choose_seed(u32 target_state_id, u8 mode) {
 
 /* Update state-aware variables */
 void update_state_aware_variables(struct queue_entry *q, u8 dry_run) {
+    //用直接接收到的response_buf来更新状态
     khint_t k;
     int discard, i;
     state_info_t *state;
@@ -783,9 +785,11 @@ void update_state_aware_variables(struct queue_entry *q, u8 dry_run) {
 
     if (!response_buf_size || !response_bytes) return;
 
-    unsigned int *state_sequence = (*extract_response_codes)(response_buf, response_buf_size, &state_count);
+    // unsigned int* extract_response_codes_smtp(unsigned char* buf, unsigned int buf_size, unsigned int* state_count_ref)
+    unsigned int *state_sequence = (*extract_response_codes)(response_buf, response_buf_size, &state_count); //返回服务器返回的所有的状态路径
+    
 
-    q->unique_state_count = get_unique_state_count(state_sequence, state_count);
+    q->unique_state_count = get_unique_state_count(state_sequence, state_count);//一共有几种状态
 
     if (is_state_sequence_interesting(state_sequence, state_count)) {
         //Save the current kl_messages to a file which can be used to replay the newly discovered paths on the ipsm
@@ -1077,7 +1081,9 @@ int send_over_network() {
     }
 
     //retrieve early server response if needed
+    //int net_recv(int sockfd, struct timeval timeout, int poll_w, char **response_buf, unsigned int *len)
     if (net_recv(sockfd, timeout, poll_wait_msecs, &response_buf, &response_buf_size)) goto HANDLE_RESPONSES;
+    //所有收到的回复都存到了response_buf，1为报错
 
     //write the request messages
     kliter_t(lms) *it;

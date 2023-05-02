@@ -6002,7 +6002,7 @@ static u8 fuzz_one(char **argv) { //变异
             //To compute M2_region_count, we identify the first region which has a different annotation
             //Now we quickly compare the state count, we could make it more fine grained by comparing the exact response codes
             for (i = 0; i < queue_cur->region_count; i++) {
-                if (queue_cur->regions[i].state_count != queue_cur->regions[0].state_count) break;
+                if (queue_cur->regions[i].state_count != queue_cur->regions[0].state_count) break; //发生了状态的变化，就退出
                 M2_region_count++;
             }
         } else {
@@ -6047,8 +6047,8 @@ static u8 fuzz_one(char **argv) { //变异
 
     kliter_t(lms) *it;
 
-    M2_prev = NULL;
-    M2_next = kl_end(kl_messages);
+    M2_prev = NULL;//M2 语句的前一个region
+    M2_next = kl_end(kl_messages);//完成M2 语句的后一个region
 
     u32 count = 0;
     for (it = kl_begin(kl_messages); it != kl_end(kl_messages); it = kl_next(it)) {
@@ -6079,7 +6079,8 @@ static u8 fuzz_one(char **argv) { //变异
         in_buf_size += kl_val(it)->msize;
         it = kl_next(it);
     }
-
+    //这里in_buf就是需要变异的内容
+    
     orig_in = in_buf;
 
     out_buf = ck_alloc_nozero(in_buf_size);

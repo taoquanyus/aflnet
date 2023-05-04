@@ -521,9 +521,9 @@ u8 is_state_sequence_interesting(unsigned int *state_sequence, unsigned int stat
     u32 hashKey = hash32(trimmed_state_sequence, count * sizeof(unsigned int), 0);
     if (trimmed_state_sequence) free(trimmed_state_sequence);
 
-    if (kh_get(hs32, khs_ipsm_paths, hashKey) != kh_end(khs_ipsm_paths)) {
+    if (kh_get(hs32, khs_ipsm_paths, hashKey) != kh_end(khs_ipsm_paths)) {//如果这个路径存在
         return 0;
-    } else {
+    } else {//如果路径不存在，将其放入hash表中
         int dummy;
         kh_put(hs32, khs_ipsm_paths, hashKey, &dummy);
         return 1;
@@ -535,12 +535,13 @@ void update_region_annotations(struct queue_entry *q) {
     u32 i = 0;
 
     for (i = 0; i < messages_sent; i++) {//从这里也可以看出，一个region对应一个message
-        if ((response_bytes[i] == 0) || (i > 0 && (response_bytes[i] - response_bytes[i - 1] == 0))) {
+        if ((response_bytes[i] == 0) || (i > 0 && (response_bytes[i] - response_bytes[i - 1] == 0))) {//如果发送当前region没有返回任何东西
             q->regions[i].state_sequence = NULL;
             q->regions[i].state_count = 0;
         } else {
             unsigned int state_count;
-            q->regions[i].state_sequence = (*extract_response_codes)(response_buf, response_bytes[i], &state_count);
+            //这里思考了一下，理论上来说一个region还真有可能触发多个状态码
+            q->regions[i].state_sequence = (*extract_response_codes)(response_buf, response_bytes[i], &state_count);//注意这里的response_bytes[i]是accumulating len
             q->regions[i].state_count = state_count;
         }
     }
@@ -789,7 +790,7 @@ void update_state_aware_variables(struct queue_entry *q, u8 dry_run) {
     unsigned int *state_sequence = (*extract_response_codes)(response_buf, response_buf_size, &state_count); //返回服务器返回的所有的状态路径
     
 
-    q->unique_state_count = get_unique_state_count(state_sequence, state_count);//一共有几种状态
+    q->unique_state_count = get_unique_state_count(state_sequence, state_count);//当前这个队列一共触发几个状态
 
     if (is_state_sequence_interesting(state_sequence, state_count)) {
         //Save the current kl_messages to a file which can be used to replay the newly discovered paths on the ipsm
@@ -907,7 +908,7 @@ void update_state_aware_variables(struct queue_entry *q, u8 dry_run) {
 
     //Annotate the regions
     update_region_annotations(q);
-
+//这里是重点！
     //Update the states hashtable to keep the list of seeds which help us to reach a specific state
     //Iterate over the regions & their annotated state (sub)sequences and update the hashtable accordingly
     //All seed should "reach" state 0 (initial state) so we add this one to the map first

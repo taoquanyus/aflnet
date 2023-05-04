@@ -2,5 +2,6 @@
     "files.associations": {
         "config.h": "c",
         "typeinfo": "c"
-    }
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }

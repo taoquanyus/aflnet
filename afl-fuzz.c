@@ -916,6 +916,7 @@ void update_state_aware_variables(struct queue_entry *q, u8 dry_run) {
     if (k != kh_end(khms_states)) {
         state = kh_val(khms_states, k);
         state->seeds = (void **) ck_realloc(state->seeds, (state->seeds_count + 1) * sizeof(void *));
+        //state_seeds[i]=能够到达当前状态的队列
         state->seeds[state->seeds_count] = (void *) q;
         state->seeds_count++;
 

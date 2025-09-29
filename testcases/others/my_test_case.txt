@@ -1,0 +1,18 @@
+# This is a sample test case file for AFLNet.
+# AFLNet uses network packet sequences as test cases.
+# This is a simple example representing a potential sequence for a generic protocol.
+# The exact format depends on the target protocol being fuzzed.
+
+# Request 1: Initial connection/hello message
+GET / HTTP/1.1
+Host: example.com
+User-Agent: AFLNet-Test-Case
+Connection: close
+
+# Request 2: A subsequent request that might depend on state
+POST /api/data HTTP/1.1
+Host: example.com
+Content-Type: application/json
+Content-Length: 13
+
+{"key":"val"}

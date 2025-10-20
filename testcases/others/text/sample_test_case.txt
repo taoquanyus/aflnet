@@ -1,0 +1,5 @@
+Hello, AFL!
+This is a sample test case file for AFL fuzzing.
+It contains some basic text content that can be used as a seed.
+The file is intentionally simple to demonstrate the concept.
+AFL will use this as a starting point for generating mutations.

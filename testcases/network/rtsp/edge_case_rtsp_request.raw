@@ -1,0 +1,28 @@
+DESCRIBE rtsp://127.0.0.1:8554/test RTSP/1.0
+CSeq: 1
+User-Agent: TestClient
+
+SETUP rtsp://127.0.0.1:8554/test/track1 RTSP/1.0
+CSeq: 2
+Transport: RTP/UDP;unicast;client_port=1000-1001
+User-Agent: TestClient
+
+PLAY rtsp://127.0.0.1:8554/test/ RTSP/1.0
+CSeq: 3
+Session: 12345678
+User-Agent: TestClient
+Range: npt=0.000-
+
+TEARDOWN rtsp://127.0.0.1:8554/test/ RTSP/1.0
+CSeq: 4
+Session: 12345678
+User-Agent: TestClient
+
+DESCRIBE rtsp://127.0.0.1:8554/%00%01%02%03 RTSP/1.0
+CSeq: 5
+User-Agent: TestClient
+
+OPTIONS rtsp://127.0.0.1:8554/ RTSP/1.0
+CSeq: 6
+User-Agent: TestClient
+Accept: */*

@@ -1,0 +1,18 @@
+DESCRIBE rtsp://127.0.0.1:8554/wavAudioTest RTSP/1.0
+CSeq: 1
+User-Agent: TestClient
+
+OPTIONS rtsp://127.0.0.1:8554/ RTSP/1.0
+CSeq: 2
+User-Agent: TestClient
+
+SETUP rtsp://127.0.0.1:8554/wavAudioTest/track1 RTSP/1.0
+CSeq: 3
+Transport: RTP/UDP;unicast;client_port=8000-8001
+User-Agent: TestClient
+
+PLAY rtsp://127.0.0.1:8554/wavAudioTest/ RTSP/1.0
+CSeq: 4
+Session: 12345678
+User-Agent: TestClient
+Range: npt=0.000-

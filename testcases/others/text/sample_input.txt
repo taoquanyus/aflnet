@@ -1,0 +1,10 @@
+This is a sample text input for testing.
+It contains multiple lines to test line parsing.
+Special characters: !@#$%^&*()_+-=[]{}|;':",./<>?
+Numbers: 1234567890
+Unicode: café naïve résumé
+Boundary values: 0, -1, 999999999
+Edge case: a
+Empty line below:
+
+Very long line: abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;':",./<>?`~

@@ -5,13 +5,44 @@
 *.out
 
 # Dependencies
-build/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
 
 # Logs and temp files
 *.log
 *.tmp
+*.swp
 
 # Editors
 .vscode/
 .idea/
+
+# Environment
+.env
+.env.local
+*.env.*
+
+# Coverage
+coverage/
+htmlcov/
+.coverage
+
+# Distribution / packaging
+dist/
+build/
+*.tar.gz
+*.whl
+*.egg
+*.egg-info/
+
+# Testing
+.pytest_cache/
+.mypy_cache/
+.tox/
+
+# System files
+.DS_Store
+Thumbs.db
 ```

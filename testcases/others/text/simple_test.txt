@@ -1,0 +1,3 @@
+This is a simple test case for AFL fuzzing.
+It contains basic text content to seed the fuzzing process.
+The goal is to provide a minimal example for text format parsing.

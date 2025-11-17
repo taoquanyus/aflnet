@@ -1,0 +1,12 @@
+{
+  "name": "Sample JSON test case",
+  "version": "1.0",
+  "data": {
+    "id": 123,
+    "description": "This is a sample JSON for AFL fuzzing",
+    "items": [
+      {"id": 1, "value": "test1"},
+      {"id": 2, "value": "test2"}
+    ]
+  }
+}

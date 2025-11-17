@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <element id="1">
+        <name>Sample Element</name>
+        <value>Test Value</value>
+        <nested>
+            <property key="type">xml</property>
+            <property key="format">structured</property>
+        </nested>
+    </element>
+    <element id="2">
+        <name>Another Element</name>
+        <value>Another Value</value>
+    </element>
+</root>

@@ -1,0 +1,5 @@
+This is a sample text file for AFL fuzzing.
+It contains various characters and symbols: !@#$%^&*()
+It also includes numbers: 1234567890
+And some special characters: \n\t\r{}
+This text is designed to test text parsing functions.

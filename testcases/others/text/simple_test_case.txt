@@ -1,0 +1,6 @@
+Hello World
+This is a simple test case for AFL fuzzing.
+It contains multiple lines to test different parsing scenarios.
+Line 3: Special characters !@#$%^&*()
+Line 4: Numbers 123456789
+Line 5: Mixed content with "quotes" and 'apostrophes'
